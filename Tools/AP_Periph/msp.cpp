@@ -45,13 +45,13 @@ void AP_Periph_FW::msp_sensor_update(void)
     if (msp.port.uart == nullptr) {
         return;
     }
-#ifdef HAL_PERIPH_ENABLE_GPS
+#if AP_PERIPH_GPS_ENABLED
     send_msp_GPS();
 #endif
-#ifdef HAL_PERIPH_ENABLE_BARO
+#if AP_PERIPH_BARO_ENABLED
     send_msp_baro();
 #endif
-#ifdef HAL_PERIPH_ENABLE_MAG
+#if AP_PERIPH_MAG_ENABLED
     send_msp_compass();
 #endif
 #ifdef HAL_PERIPH_ENABLE_AIRSPEED
@@ -60,7 +60,7 @@ void AP_Periph_FW::msp_sensor_update(void)
 }
 
 
-#ifdef HAL_PERIPH_ENABLE_GPS
+#if AP_PERIPH_GPS_ENABLED
 /*
   send MSP GPS packet
  */
@@ -110,7 +110,8 @@ void AP_Periph_FW::send_msp_GPS(void)
     }
     uint64_t tepoch_us = gps.time_epoch_usec(0);
     time_t utc_sec = tepoch_us / (1000U * 1000U);
-    struct tm* tm = gmtime(&utc_sec);
+    struct tm tvd {};
+    struct tm* tm = gmtime_r(&utc_sec, &tvd);
 
     p.year = tm->tm_year+1900;
     p.month = tm->tm_mon;
@@ -121,10 +122,10 @@ void AP_Periph_FW::send_msp_GPS(void)
 
     send_msp_packet(MSP2_SENSOR_GPS, &p, sizeof(p));
 }
-#endif // HAL_PERIPH_ENABLE_GPS
+#endif // AP_PERIPH_GPS_ENABLED
 
 
-#ifdef HAL_PERIPH_ENABLE_BARO
+#if AP_PERIPH_BARO_ENABLED
 /*
   send MSP baro packet
  */
@@ -148,9 +149,9 @@ void AP_Periph_FW::send_msp_baro(void)
 
     send_msp_packet(MSP2_SENSOR_BAROMETER, &p, sizeof(p));
 }
-#endif // HAL_PERIPH_ENABLE_BARO
+#endif // AP_PERIPH_BARO_ENABLED
 
-#ifdef HAL_PERIPH_ENABLE_MAG
+#if AP_PERIPH_MAG_ENABLED
 /*
   send MSP compass packet
  */
@@ -175,7 +176,7 @@ void AP_Periph_FW::send_msp_compass(void)
 
     send_msp_packet(MSP2_SENSOR_COMPASS, &p, sizeof(p));
 }
-#endif // HAL_PERIPH_ENABLE_MAG
+#endif // AP_PERIPH_MAG_ENABLED
 
 #ifdef HAL_PERIPH_ENABLE_AIRSPEED
 /*
